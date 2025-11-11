@@ -28,5 +28,15 @@ services:
       "up"
     ]
 
+  users_service:
+    build:
+      context: ../backend/users_service/
+    container_name: goshop_users_service
+    environment:
+      PORT: ${USERS_SERVICE_PORT}
+      DATABASE_URL: ${DATABASE_URL}
+    depends_on:
+      - migrate
+
 volumes:
   goshopdata:
