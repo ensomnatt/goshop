@@ -1,11 +1,10 @@
 package main
 
 import (
-	"context"
-	"fmt"
 	"users_service/internal/config"
-	"users_service/internal/domain"
+	httpDelievery "users_service/internal/delivery/http"
 	"users_service/internal/repository"
+	"users_service/internal/usecase"
 	"users_service/pkg/logger"
 )
 
@@ -14,23 +13,12 @@ func main() {
 	cfg := config.Load()
 	pool := repository.NewPostgresPool(cfg, log)
 	repo := repository.NewUserRepository(pool)
+	uc := usecase.NewUsersUseCase(repo, cfg)
+	handler := httpDelievery.NewUsersHandler(uc, cfg, log)
 
-	user := &domain.User{
-		Name:  "shushmyr",
-		Email: "ensomnatt@protonmail.com",
-	}
-
-	ctx := context.Background()
-
-	err := repo.Create(user, ctx)
+	log.Infof("Server is up and running, port: %s", cfg.Port)
+	err := handler.Start()
 	if err != nil {
-		log.Errorf("Failed to create user: %v", err)
+		log.Fatalf("Failed to start server: %v", err)
 	}
-
-	userFromDB, err := repo.GetByEmail(user.Email, ctx)
-	if err != nil {
-		log.Errorf("Failed to get user: %v", err)
-	}
-
-	fmt.Println(userFromDB)
 }

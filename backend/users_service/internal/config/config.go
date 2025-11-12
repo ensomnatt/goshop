@@ -9,6 +9,7 @@ import (
 type Config struct {
 	Port        string `env:"PORT" envDefault:"8080"`
 	DatabaseUrl string `env:"DATABASE_URL,required"`
+	JWTSecret   string `env:"JWT_SECRET" envDefault:"zalupa"`
 }
 
 func Load() *Config {
